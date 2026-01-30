@@ -560,6 +560,27 @@
                 </div>
 
                 <div class="form-group">
+                    <label>Capture Time Window</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="captureScheduleEnabled">
+                        <span class="slider"></span>
+                    </label>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                        Enable to only capture frames during specific hours (e.g., daylight only)
+                    </p>
+                </div>
+
+                <div class="form-group" id="timeWindowControls" style="display: none;">
+                    <label for="captureStartTime">Start Time</label>
+                    <input type="time" id="captureStartTime">
+                    <label for="captureStopTime" style="margin-top: 1rem;">Stop Time</label>
+                    <input type="time" id="captureStopTime">
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                        Frames will only be captured between these times
+                    </p>
+                </div>
+
+                <div class="form-group">
                     <label for="frameInterval">Frame Interval (seconds)</label>
                     <input type="number" id="frameInterval" min="1" value="300">
                 </div>
@@ -657,7 +678,16 @@
             loadConfig();
             loadStats();
             setInterval(loadStats, 5000); // Refresh stats every 5 seconds
+            
+            // Add event listener for capture schedule toggle
+            document.getElementById('captureScheduleEnabled').addEventListener('change', toggleTimeWindowControls);
         });
+
+        function toggleTimeWindowControls() {
+            const enabled = document.getElementById('captureScheduleEnabled').checked;
+            const controls = document.getElementById('timeWindowControls');
+            controls.style.display = enabled ? 'block' : 'none';
+        }
 
         async function loadConfig() {
             try {
@@ -666,9 +696,15 @@
                 
                 document.getElementById('rtspUrl').value = config.rtsp_url || '';
                 document.getElementById('captureTime').value = config.capture_time || '12:00';
+                document.getElementById('captureStartTime').value = config.capture_start_time || '06:00';
+                document.getElementById('captureStopTime').value = config.capture_stop_time || '20:00';
+                document.getElementById('captureScheduleEnabled').checked = config.capture_schedule_enabled || false;
                 document.getElementById('frameInterval').value = config.frame_interval || 300;
                 document.getElementById('fps').value = config.fps || 30;
                 document.getElementById('enabled').checked = config.enabled || false;
+                
+                // Show/hide time window controls
+                toggleTimeWindowControls();
                 
                 updateStatusBadge(config.enabled);
             } catch (error) {
@@ -680,6 +716,9 @@
             const config = {
                 rtsp_url: document.getElementById('rtspUrl').value,
                 capture_time: document.getElementById('captureTime').value,
+                capture_start_time: document.getElementById('captureStartTime').value,
+                capture_stop_time: document.getElementById('captureStopTime').value,
+                capture_schedule_enabled: document.getElementById('captureScheduleEnabled').checked,
                 frame_interval: parseInt(document.getElementById('frameInterval').value),
                 fps: parseInt(document.getElementById('fps').value),
                 enabled: document.getElementById('enabled').checked,

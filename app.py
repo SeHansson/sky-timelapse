@@ -38,6 +38,9 @@ logger = logging.getLogger(__name__)
 DEFAULT_CONFIG = {
     'rtsp_url': '',
     'capture_time': '12:00',
+    'capture_start_time': '06:00',  # Start capturing at 6 AM
+    'capture_stop_time': '20:00',   # Stop capturing at 8 PM
+    'capture_schedule_enabled': False,  # Enable/disable time-based capture
     'fps': 30,
     'frame_interval': 300,  # seconds between frames (5 minutes)
     'output_resolution': [1920, 1080],
@@ -146,6 +149,24 @@ def scheduled_capture():
     if not current_config['enabled'] or not current_config['rtsp_url']:
         return
     
+    # Check if we're within the capture time window
+    if current_config.get('capture_schedule_enabled', False):
+        now = datetime.now().time()
+        start_time = datetime.strptime(current_config.get('capture_start_time', '00:00'), '%H:%M').time()
+        stop_time = datetime.strptime(current_config.get('capture_stop_time', '23:59'), '%H:%M').time()
+        
+        # Handle time windows that cross midnight
+        if start_time <= stop_time:
+            # Normal case: 06:00 to 20:00
+            if not (start_time <= now <= stop_time):
+                logger.info(f"Outside capture window ({current_config['capture_start_time']} - {current_config['capture_stop_time']}), skipping capture")
+                return
+        else:
+            # Crosses midnight: 20:00 to 06:00
+            if not (now >= start_time or now <= stop_time):
+                logger.info(f"Outside capture window ({current_config['capture_start_time']} - {current_config['capture_stop_time']}), skipping capture")
+                return
+    
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     frame_path = FRAMES_DIR / f'frame_{timestamp}.jpg'
     
@@ -206,7 +227,8 @@ def update_config():
     data = request.json
     
     # Update config
-    for key in ['rtsp_url', 'capture_time', 'fps', 'frame_interval', 
+    for key in ['rtsp_url', 'capture_time', 'capture_start_time', 'capture_stop_time', 
+                'capture_schedule_enabled', 'fps', 'frame_interval', 
                 'output_resolution', 'enabled']:
         if key in data:
             current_config[key] = data[key]

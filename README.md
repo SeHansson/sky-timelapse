@@ -135,13 +135,20 @@ http://YOUR_IP_ADDRESS:5000
    - Lower values = more frames = smoother timelapse
    - Higher values = fewer frames = more time coverage
 
-4. **Timelapse FPS**
+4. **Capture Time Window** (Optional)
+   - Enable to only capture frames during specific hours
+   - Perfect for daylight-only capture (e.g., 06:00 to 20:00)
+   - **Start Time**: When to begin capturing (e.g., sunrise)
+   - **Stop Time**: When to stop capturing (e.g., sunset)
+   - Supports windows that cross midnight (e.g., 20:00 to 06:00)
+
+5. **Timelapse FPS**
    - Frames per second in the output video
    - 30 FPS = smooth playback (recommended)
    - 24 FPS = cinematic look
    - 60 FPS = very smooth
 
-5. **Enable Capture**
+6. **Enable Capture**
    - Toggle to start/stop automatic capturing
    - Must be enabled for scheduled captures
 
@@ -180,19 +187,26 @@ rtsp-timelapse/
 
 ## Configuration Examples
 
-### Example 1: Construction Site (Daily Overview)
+### Example 1: Sky Timelapse (Daylight Only)
+- **Frame Interval**: 300 seconds (5 minutes)
+- **Capture Window**: 06:00 to 20:00 (enabled)
+- **Daily Time**: 20:30 (8:30 PM)
+- **FPS**: 30
+- **Result**: Daylight hours only, ~2-3 minute video per day
+
+### Example 2: Construction Site (Daily Overview)
 - **Frame Interval**: 600 seconds (10 minutes)
 - **Daily Time**: 17:00 (5 PM)
 - **FPS**: 30
 - **Result**: Full day condensed into ~1-2 minute video
 
-### Example 2: Plant Growth (Weekly Timelapse)
+### Example 3: Plant Growth (Weekly Timelapse)
 - **Frame Interval**: 3600 seconds (1 hour)
 - **Daily Time**: 20:00 (8 PM)
 - **FPS**: 24
 - **Result**: Week of growth in ~2-3 minute video
 
-### Example 3: Traffic Monitoring (High Detail)
+### Example 4: Traffic Monitoring (High Detail)
 - **Frame Interval**: 60 seconds (1 minute)
 - **Daily Time**: 23:00 (11 PM)
 - **FPS**: 60

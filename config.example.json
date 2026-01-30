@@ -7,6 +7,15 @@
   "capture_time": "18:00",
   "_capture_time_help": "Time to create daily timelapse (24-hour format HH:MM)",
   
+  "capture_start_time": "06:00",
+  "_capture_start_time_help": "Start capturing frames at this time (24-hour format HH:MM)",
+  
+  "capture_stop_time": "20:00",
+  "_capture_stop_time_help": "Stop capturing frames at this time (24-hour format HH:MM)",
+  
+  "capture_schedule_enabled": false,
+  "_capture_schedule_enabled_help": "Enable to only capture during start/stop time window (useful for daylight-only capture)",
+  
   "fps": 30,
   "_fps_help": "Frames per second for output timelapse video (typical: 24-60)",
   
