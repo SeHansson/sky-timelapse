@@ -1,0 +1,27 @@
+{
+  "_comment": "TIMESHIFT Configuration File - Edit values as needed",
+  
+  "rtsp_url": "rtsp://admin:password@192.168.1.100:554/stream1",
+  "_rtsp_url_help": "Full RTSP stream URL including credentials. Format: rtsp://username:password@ip:port/path",
+  
+  "capture_time": "18:00",
+  "_capture_time_help": "Time to create daily timelapse (24-hour format HH:MM)",
+  
+  "fps": 30,
+  "_fps_help": "Frames per second for output timelapse video (typical: 24-60)",
+  
+  "frame_interval": 300,
+  "_frame_interval_help": "Seconds between frame captures. 300 = 5 minutes, 600 = 10 minutes",
+  
+  "output_resolution": [1920, 1080],
+  "_output_resolution_help": "Output resolution [width, height]. Common: [1920,1080], [1280,720], [3840,2160]",
+  
+  "enabled": false,
+  "_enabled_help": "Enable/disable automatic capturing. Set to true to start capturing",
+  
+  "last_capture": null,
+  "_last_capture_help": "Timestamp of last capture (automatically updated)",
+  
+  "total_frames_captured": 0,
+  "_total_frames_captured_help": "Total number of frames captured (automatically updated)"
+}

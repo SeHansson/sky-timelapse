@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  timeshift:
+    build: .
+    container_name: timeshift
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    environment:
+      - TZ=America/New_York  # Set your timezone
+    network_mode: bridge
