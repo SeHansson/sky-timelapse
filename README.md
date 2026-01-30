@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # TIMESHIFT - RTSP Timelapse Studio
 
 A complete web application for creating automated timelapses from RTSP camera streams. Features a modern web interface with real-time monitoring and configurable capture settings.
@@ -32,14 +31,44 @@ A complete web application for creating automated timelapses from RTSP camera st
 
 ## Installation
 
+### Option 1: Docker (Recommended)
+
+**Using Docker Run:**
+```bash
+docker run -d \
+  --name sky-timelapse \
+  -p 5000:5000 \
+  -v /path/to/data:/app/data \
+  -e TZ=Europe/Berlin \
+  sehansson/sky-timelapse:latest
+```
+
+**Using Docker Compose:**
+```yaml
+version: '3.8'
+services:
+  sky-timelapse:
+    image: sehansson/sky-timelapse:latest
+    container_name: sky-timelapse
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - TZ=Europe/Berlin
+    restart: unless-stopped
+```
+
+Then access at `http://localhost:5000`
+
+### Option 2: Python Direct Install
+
 ### 1. Clone or Download the Application
 
 ```bash
-# Create a directory for the application
-mkdir rtsp-timelapse
-cd rtsp-timelapse
-
-# Copy all files to this directory
+# Clone from GitHub
+git clone https://github.com/sehansson/sky-timelapse.git
+cd sky-timelapse
 ```
 
 ### 2. Install Python Dependencies
@@ -51,7 +80,7 @@ pip install -r requirements.txt
 Or install manually:
 
 ```bash
-pip install Flask==3.0.0 flask-cors==4.0.0 opencv-python==4.8.1.78 schedule==1.2.0
+pip install Flask==3.0.0 flask-cors==4.0.0 numpy<2.0.0 opencv-python==4.8.1.78 schedule==1.2.0
 ```
 
 ### 3. Verify Installation
@@ -300,7 +329,3 @@ For issues or questions:
   - Web interface
   - File management
   - Statistics tracking
-=======
-# sky-timelapse
-Make timelapse video from RTSP camera
->>>>>>> 0b9f79ea0b21e13263903ef85398096a519a7081
