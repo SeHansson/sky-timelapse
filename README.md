@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # TIMESHIFT - RTSP Timelapse Studio
 
 A complete web application for creating automated timelapses from RTSP camera streams. Features a modern web interface with real-time monitoring and configurable capture settings.
@@ -299,3 +300,7 @@ For issues or questions:
   - Web interface
   - File management
   - Statistics tracking
+=======
+# sky-timelapse
+Make timelapse video from RTSP camera
+>>>>>>> 0b9f79ea0b21e13263903ef85398096a519a7081
