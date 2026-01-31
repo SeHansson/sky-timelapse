@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1f2e"/>
+      <stop offset="100%" style="stop-color:#0a0e14"/>
+    </linearGradient>
+    <linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#4cc9f0"/>
+      <stop offset="100%" style="stop-color:#0077b6"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00ff9f"/>
+      <stop offset="100%" style="stop-color:#00d4ff"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="512" height="512" fill="url(#bg)" rx="90"/>
+  
+  <!-- Sky circle -->
+  <circle cx="256" cy="200" r="140" fill="url(#sky)"/>
+  
+  <!-- Sun -->
+  <circle cx="256" cy="150" r="35" fill="#ffd60a"/>
+  
+  <!-- Horizon line -->
+  <rect x="80" y="320" width="352" height="8" fill="url(#accent)" opacity="0.6" rx="4"/>
+  
+  <!-- Camera icon -->
+  <g transform="translate(256, 380)">
+    <!-- Camera body -->
+    <rect x="-70" y="-40" width="140" height="80" rx="12" fill="#2d3748" stroke="url(#accent)" stroke-width="4"/>
+    
+    <!-- Lens -->
+    <circle cx="0" cy="0" r="32" fill="#1a1f2e" stroke="url(#accent)" stroke-width="4"/>
+    <circle cx="0" cy="0" r="20" fill="#0a0e14"/>
+    <circle cx="0" cy="0" r="10" fill="#00ff9f" opacity="0.6"/>
+    
+    <!-- Recording dot -->
+    <circle cx="45" cy="-25" r="8" fill="#ff006e"/>
+    
+    <!-- Speed arrows -->
+    <path d="M -90,-5 L -80,-10 L -80,0 Z" fill="#00ff9f"/>
+    <path d="M -105,-5 L -95,-10 L -95,0 Z" fill="#00d4ff"/>
+  </g>
+  
+  <!-- Decorative elements -->
+  <circle cx="256" cy="256" r="220" fill="none" stroke="url(#accent)" stroke-width="2" opacity="0.2"/>
+</svg>

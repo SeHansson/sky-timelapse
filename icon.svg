@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="skyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#00a8e8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0077b6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00ff9f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00d4ff;stop-opacity:1" />
+    </linearGradient>
+    <radialGradient id="sunGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#ffd60a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ffc300;stop-opacity:1" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="#0a0e14"/>
+  
+  <!-- Sky background with gradient -->
+  <circle cx="256" cy="256" r="220" fill="url(#skyGradient)" opacity="0.9"/>
+  
+  <!-- Sun -->
+  <circle cx="256" cy="180" r="45" fill="url(#sunGradient)">
+    <animate attributeName="cy" values="180;185;180" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Sun rays -->
+  <g opacity="0.6">
+    <line x1="256" y1="115" x2="256" y2="135" stroke="#ffd60a" stroke-width="4" stroke-linecap="round">
+      <animate attributeName="y1" values="115;110;115" dur="3s" repeatCount="indefinite"/>
+    </line>
+    <line x1="206" y1="130" x2="220" y2="144" stroke="#ffd60a" stroke-width="4" stroke-linecap="round">
+      <animate attributeName="x1" values="206;201;206" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="y1" values="130;125;130" dur="3s" repeatCount="indefinite"/>
+    </line>
+    <line x1="306" y1="130" x2="292" y2="144" stroke="#ffd60a" stroke-width="4" stroke-linecap="round">
+      <animate attributeName="x1" values="306;311;306" dur="3s" repeatCount="indefinite"/>
+      <animate attributeName="y1" values="130;125;130" dur="3s" repeatCount="indefinite"/>
+    </line>
+  </g>
+  
+  <!-- Clouds -->
+  <g opacity="0.3">
+    <ellipse cx="180" cy="140" rx="35" ry="20" fill="white"/>
+    <ellipse cx="200" cy="135" rx="30" ry="18" fill="white"/>
+    <ellipse cx="220" cy="140" rx="35" ry="20" fill="white"/>
+  </g>
+  
+  <g opacity="0.25">
+    <ellipse cx="310" cy="200" rx="40" ry="22" fill="white"/>
+    <ellipse cx="335" cy="195" rx="35" ry="20" fill="white"/>
+    <ellipse cx="360" cy="200" rx="40" ry="22" fill="white"/>
+  </g>
+  
+  <!-- Camera/Timelapse icon in center -->
+  <g transform="translate(256, 320)">
+    <!-- Camera body -->
+    <rect x="-60" y="-35" width="120" height="70" rx="8" fill="#1c2128" stroke="url(#accentGradient)" stroke-width="3"/>
+    
+    <!-- Camera lens -->
+    <circle cx="0" cy="0" r="28" fill="#2d3748" stroke="url(#accentGradient)" stroke-width="3"/>
+    <circle cx="0" cy="0" r="20" fill="#0a0e14" opacity="0.8"/>
+    <circle cx="0" cy="0" r="12" fill="url(#accentGradient)" opacity="0.6">
+      <animate attributeName="r" values="12;14;12" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    
+    <!-- Recording indicator -->
+    <circle cx="35" cy="-20" r="6" fill="#ff006e">
+      <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
+    
+    <!-- Timelapse speed indicators -->
+    <g opacity="0.8">
+      <path d="M -75 0 L -68 -5 L -68 5 Z" fill="url(#accentGradient)">
+        <animate attributeName="opacity" values="0.3;1;0.3" dur="1s" repeatCount="indefinite" begin="0s"/>
+      </path>
+      <path d="M -85 0 L -78 -5 L -78 5 Z" fill="url(#accentGradient)">
+        <animate attributeName="opacity" values="0.3;1;0.3" dur="1s" repeatCount="indefinite" begin="0.15s"/>
+      </path>
+      <path d="M -95 0 L -88 -5 L -88 5 Z" fill="url(#accentGradient)">
+        <animate attributeName="opacity" values="0.3;1;0.3" dur="1s" repeatCount="indefinite" begin="0.3s"/>
+      </path>
+    </g>
+  </g>
+  
+  <!-- Time arc indicators -->
+  <path d="M 100 256 A 156 156 0 0 1 412 256" fill="none" stroke="url(#accentGradient)" stroke-width="3" opacity="0.4" stroke-dasharray="10,5">
+    <animate attributeName="stroke-dashoffset" values="0;-15;0" dur="2s" repeatCount="indefinite"/>
+  </path>
+  
+  <!-- Outer glow ring -->
+  <circle cx="256" cy="256" r="220" fill="none" stroke="url(#accentGradient)" stroke-width="2" opacity="0.3"/>
+  <circle cx="256" cy="256" r="240" fill="none" stroke="url(#accentGradient)" stroke-width="1" opacity="0.2"/>
+</svg>
