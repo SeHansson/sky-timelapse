@@ -9,7 +9,7 @@ A complete web application for creating automated timelapses from RTSP camera st
 ### Core Functionality
 - 📹 **RTSP Stream Support** - Connect to any RTSP camera stream
 - ⏰ **Scheduled Captures** - Automatically capture frames at set intervals
-- 🎬 **Automatic Timelapse Creation** - Generate timelapse videos daily
+- 🎬 **Automatic Timelapse Creation** - Generate timelapse videos daily with H.264 encoding
 - 🖥️ **Modern Web Interface** - Sleek, responsive dashboard
 - 📊 **Real-time Statistics** - Monitor frame count, storage, and status
 - ⚙️ **Configurable Settings** - Adjust FPS, intervals, resolution, and timing
@@ -312,8 +312,17 @@ To access from outside your network:
 
 - **Frame Interval**: 300-600 seconds is optimal for most use cases
 - **Storage**: ~500KB per frame, plan for 288 frames/day at 5-min intervals
+- **Video Codec**: H.264 (avc1) for optimal quality/size ratio; automatic fallback to MPEG-4
 - **CPU Usage**: Minimal when not capturing; brief spike during capture/encoding
 - **Memory**: ~200-500MB typical usage
+
+## Video Output
+
+- **Format**: MP4 container
+- **Codec**: H.264 (primary), with automatic fallback to MPEG-4 if H.264 unavailable
+- **Resolution**: Configurable (default 1920x1080)
+- **Frame Rate**: Configurable 24-60 FPS (default 30 FPS)
+- **Quality**: High quality, optimized compression
 
 ## Security Notes
 

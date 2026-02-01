@@ -123,10 +123,39 @@ def create_timelapse():
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         output_file = TIMELAPSES_DIR / f'timelapse_{timestamp}.mp4'
         
-        # Create video writer
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        fps = current_config['fps']
-        out = cv2.VideoWriter(str(output_file), fourcc, fps, (width, height))
+        # Try H.264 codec first (best quality/compression), fallback to mp4v
+        codecs_to_try = [
+            ('avc1', 'H.264'),  # Best quality
+            ('h264', 'H.264'),  # Alternative H.264 fourcc
+            ('x264', 'x264'),   # Another H.264 variant
+            ('mp4v', 'MPEG-4'), # Fallback
+        ]
+        
+        out = None
+        used_codec = None
+        
+        for fourcc_code, codec_name in codecs_to_try:
+            try:
+                fourcc = cv2.VideoWriter_fourcc(*fourcc_code)
+                fps = current_config['fps']
+                test_out = cv2.VideoWriter(str(output_file), fourcc, fps, (width, height))
+                
+                if test_out.isOpened():
+                    out = test_out
+                    used_codec = codec_name
+                    logger.info(f"Using {codec_name} codec ({fourcc_code})")
+                    break
+                else:
+                    test_out.release()
+            except Exception as e:
+                logger.debug(f"Codec {fourcc_code} not available: {e}")
+                continue
+        
+        if out is None or not out.isOpened():
+            logger.error("No compatible video codec found")
+            return None
+        
+        logger.info(f"Creating timelapse with {used_codec} codec at {fps} FPS")
         
         # Write frames to video
         for frame_file in frame_files:
