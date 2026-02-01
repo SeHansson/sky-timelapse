@@ -536,6 +536,80 @@
                 padding: 1rem;
             }
         }
+
+        /* Frame preview styles */
+        #framePreviewContainer {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #framePreviewContainer:hover {
+            border-color: var(--accent-1);
+            box-shadow: 0 5px 20px var(--shadow);
+        }
+
+        #framePreview {
+            transition: transform 0.3s ease;
+        }
+
+        #framePreviewContainer:hover #framePreview {
+            transform: scale(1.02);
+        }
+
+        /* Modal for enlarged preview */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(10, 14, 20, 0.95);
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            position: relative;
+            margin: 2rem auto;
+            max-width: 90%;
+            max-height: 90%;
+            animation: zoomIn 0.3s ease;
+        }
+
+        .modal-content img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            border: 2px solid var(--accent-1);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            color: var(--text-primary);
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: var(--accent-1);
+        }
+
+        @keyframes zoomIn {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 <body>
@@ -617,6 +691,19 @@
                     <span class="status-badge" id="statusBadge">Inactive</span>
                 </div>
 
+                <!-- Frame Preview -->
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Latest Capture</label>
+                    <div id="framePreviewContainer" style="position: relative; width: 100%; aspect-ratio: 16/9; background: var(--bg-tertiary); border-radius: 8px; border: 1px solid var(--border); overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                        <img id="framePreview" style="width: 100%; height: 100%; object-fit: cover; display: none;" alt="Latest frame">
+                        <div id="noFrameMessage" style="color: var(--text-secondary); text-align: center; padding: 2rem;">
+                            <div style="font-size: 3rem; margin-bottom: 0.5rem; opacity: 0.3;">📷</div>
+                            <div style="font-size: 0.9rem;">No frames captured yet</div>
+                        </div>
+                        <div id="frameTimestamp" style="position: absolute; bottom: 8px; right: 8px; background: rgba(10, 14, 20, 0.8); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; color: var(--accent-1); font-weight: 700; display: none;"></div>
+                    </div>
+                </div>
+
                 <div class="stats-grid">
                     <div class="stat-item">
                         <div class="stat-value" id="frameCount">0</div>
@@ -671,6 +758,14 @@
         </div>
     </div>
 
+    <!-- Modal for enlarged frame preview -->
+    <div id="frameModal" class="modal" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <img id="modalImage" src="" alt="Enlarged frame">
+        </div>
+    </div>
+
     <script>
         const API_BASE = '';
 
@@ -682,6 +777,9 @@
             
             // Add event listener for capture schedule toggle
             document.getElementById('captureScheduleEnabled').addEventListener('change', toggleTimeWindowControls);
+            
+            // Add click handler for frame preview to open modal
+            document.getElementById('framePreviewContainer').addEventListener('click', openFrameModal);
         });
 
         function toggleTimeWindowControls() {
@@ -689,6 +787,27 @@
             const controls = document.getElementById('timeWindowControls');
             controls.style.display = enabled ? 'block' : 'none';
         }
+
+        function openFrameModal() {
+            const img = document.getElementById('framePreview');
+            if (img.style.display === 'block' && img.src) {
+                const modal = document.getElementById('frameModal');
+                const modalImg = document.getElementById('modalImage');
+                modalImg.src = img.src;
+                modal.style.display = 'block';
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('frameModal').style.display = 'none';
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
 
         async function loadConfig() {
             try {
@@ -776,6 +895,8 @@
                 showNotification(result.message, result.success ? 'success' : 'error');
                 if (result.success) {
                     loadStats();
+                    // Refresh preview after a short delay to ensure file is written
+                    setTimeout(() => loadFramePreview(), 500);
                 }
             } catch (error) {
                 showNotification('Error capturing frame', 'error');
@@ -872,8 +993,44 @@
                 document.getElementById('storageUsed').textContent = stats.total_storage_mb;
                 document.getElementById('lastCapture').textContent = stats.last_capture || 'Never';
                 updateStatusBadge(stats.enabled);
+                
+                // Load frame preview if frames exist
+                if (stats.frame_count > 0) {
+                    loadFramePreview(stats.last_capture);
+                }
             } catch (error) {
                 console.error('Error loading stats:', error);
+            }
+        }
+
+        async function loadFramePreview(timestamp) {
+            try {
+                const img = document.getElementById('framePreview');
+                const noFrameMsg = document.getElementById('noFrameMessage');
+                const frameTimestamp = document.getElementById('frameTimestamp');
+                
+                // Add cache-busting parameter and error handling
+                const imageUrl = `${API_BASE}/api/latest-frame?t=${new Date().getTime()}`;
+                
+                // Test if image is available
+                const response = await fetch(imageUrl);
+                if (response.ok) {
+                    img.src = imageUrl;
+                    img.style.display = 'block';
+                    noFrameMsg.style.display = 'none';
+                    
+                    if (timestamp) {
+                        // Format timestamp nicely
+                        const formatted = timestamp.replace(/(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/, '$1-$2-$3 $4:$5:$6');
+                        frameTimestamp.textContent = formatted;
+                        frameTimestamp.style.display = 'block';
+                    }
+                } else {
+                    img.style.display = 'none';
+                    noFrameMsg.style.display = 'flex';
+                }
+            } catch (error) {
+                console.error('Error loading frame preview:', error);
             }
         }
 

@@ -406,6 +406,19 @@ def delete_frames():
     })
 
 
+@app.route('/api/latest-frame', methods=['GET'])
+def get_latest_frame():
+    """Get the latest captured frame"""
+    frames = sorted(FRAMES_DIR.glob('frame_*.jpg'), reverse=True)
+    
+    if frames:
+        latest_frame = frames[0]
+        return send_file(latest_frame, mimetype='image/jpeg')
+    else:
+        # Return a placeholder if no frames exist
+        return jsonify({'error': 'No frames available'}), 404
+
+
 @app.route('/api/stats', methods=['GET'])
 def get_stats():
     """Get application statistics"""
