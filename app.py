@@ -46,7 +46,12 @@ DEFAULT_CONFIG = {
     'output_resolution': [1920, 1080],
     'enabled': False,
     'last_capture': None,
-    'total_frames_captured': 0
+    'total_frames_captured': 0,
+    # Advanced settings
+    'auto_timelapse_on_window_end': False,  # Create timelapse when capture window ends
+    'auto_delete_frames_after_timelapse': False,  # Delete frames after creating timelapse
+    'min_frames_for_timelapse': 10,  # Minimum frames needed to create timelapse
+    'keep_frames_days': 7,  # Days to keep frames before auto-cleanup (0 = disabled)
 }
 
 # Global state
@@ -277,8 +282,44 @@ def setup_schedule():
         interval = current_config['frame_interval']
         schedule.every(interval).seconds.do(scheduled_capture)
         
+        # Schedule auto timelapse at window end if enabled
+        if current_config.get('auto_timelapse_on_window_end', False) and \
+           current_config.get('capture_schedule_enabled', False):
+            stop_time = current_config.get('capture_stop_time', '20:00')
+            schedule.every().day.at(stop_time).do(auto_timelapse_at_window_end)
+        
         logger.info(f"Scheduled: Timelapse at {current_config['capture_time']}, "
                    f"frames every {interval} seconds")
+
+
+def auto_timelapse_at_window_end():
+    """Create timelapse automatically at the end of capture window and optionally delete frames"""
+    global current_config
+    
+    frame_count = len(list(FRAMES_DIR.glob('frame_*.jpg')))
+    min_frames = current_config.get('min_frames_for_timelapse', 10)
+    
+    if frame_count < min_frames:
+        logger.info(f"Skipping auto timelapse: only {frame_count} frames (minimum {min_frames})")
+        return
+    
+    logger.info(f"Auto-creating timelapse at window end ({frame_count} frames)")
+    result = create_timelapse()
+    
+    if result and current_config.get('auto_delete_frames_after_timelapse', False):
+        logger.info("Auto-deleting frames after timelapse creation")
+        delete_all_frames()
+
+
+def delete_all_frames():
+    """Delete all captured frames"""
+    count = 0
+    for frame_file in FRAMES_DIR.glob('frame_*.jpg'):
+        frame_file.unlink()
+        count += 1
+    
+    logger.info(f"Deleted {count} frames")
+    return count
 
 
 # API Routes
@@ -304,7 +345,9 @@ def update_config():
     # Update config
     for key in ['rtsp_url', 'capture_time', 'capture_start_time', 'capture_stop_time', 
                 'capture_schedule_enabled', 'fps', 'frame_interval', 
-                'output_resolution', 'enabled']:
+                'output_resolution', 'enabled', 'auto_timelapse_on_window_end',
+                'auto_delete_frames_after_timelapse', 'min_frames_for_timelapse',
+                'keep_frames_days']:
         if key in data:
             current_config[key] = data[key]
     
@@ -438,10 +481,7 @@ def download_file(filename):
 @app.route('/api/delete-frames', methods=['POST'])
 def delete_frames():
     """Delete all captured frames"""
-    count = 0
-    for frame_file in FRAMES_DIR.glob('frame_*.jpg'):
-        frame_file.unlink()
-        count += 1
+    count = delete_all_frames()
     
     current_config['total_frames_captured'] = 0
     save_config()

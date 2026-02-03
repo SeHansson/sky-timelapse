@@ -600,6 +600,117 @@
             color: var(--accent-1);
         }
 
+        /* Settings Modal */
+        .settings-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(10, 14, 20, 0.95);
+            backdrop-filter: blur(10px);
+            overflow-y: auto;
+        }
+
+        .settings-content {
+            position: relative;
+            background: var(--bg-secondary);
+            margin: 3rem auto;
+            padding: 2rem;
+            max-width: 700px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            animation: slideInDown 0.3s ease;
+        }
+
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .settings-header h2 {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.8rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .settings-section {
+            margin-bottom: 2rem;
+        }
+
+        .settings-section-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.2rem;
+            color: var(--accent-2);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .settings-section-title::before {
+            content: '▸';
+            color: var(--accent-1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .checkbox-group:hover {
+            border-color: var(--accent-2);
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--accent-1);
+        }
+
+        .checkbox-label {
+            flex: 1;
+        }
+
+        .checkbox-label-title {
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .checkbox-label-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
         @keyframes zoomIn {
             from {
                 transform: scale(0.8);
@@ -679,6 +790,9 @@
                     </button>
                     <button class="button button-secondary" onclick="testStream()">
                         <span>🔍 Test Stream</span>
+                    </button>
+                    <button class="button button-secondary" onclick="openAdvancedSettings()">
+                        <span>⚙️ Advanced</span>
                     </button>
                 </div>
             </div>
@@ -766,6 +880,61 @@
         </div>
     </div>
 
+    <!-- Advanced Settings Modal -->
+    <div id="settingsModal" class="settings-modal" onclick="closeSettingsModal()">
+        <div class="settings-content" onclick="event.stopPropagation()">
+            <div class="settings-header">
+                <h2>⚙️ Advanced Settings</h2>
+                <span class="modal-close" onclick="closeSettingsModal()">&times;</span>
+            </div>
+
+            <div class="settings-section">
+                <div class="settings-section-title">Automation</div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="autoTimelapseOnWindowEnd">
+                    <label class="checkbox-label" for="autoTimelapseOnWindowEnd">
+                        <div class="checkbox-label-title">Auto-create timelapse at window end</div>
+                        <div class="checkbox-label-desc">Automatically generate a timelapse video when the capture window closes each day</div>
+                    </label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="autoDeleteFrames">
+                    <label class="checkbox-label" for="autoDeleteFrames">
+                        <div class="checkbox-label-title">Delete frames after timelapse</div>
+                        <div class="checkbox-label-desc">Automatically delete captured frames after creating a timelapse to free up storage</div>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label for="minFramesForTimelapse">Minimum frames for timelapse</label>
+                    <input type="number" id="minFramesForTimelapse" min="2" max="1000" value="10">
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                        Minimum number of frames required before creating an automatic timelapse
+                    </p>
+                </div>
+
+                <div class="form-group">
+                    <label for="keepFramesDays">Keep frames (days)</label>
+                    <input type="number" id="keepFramesDays" min="0" max="365" value="7">
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                        Automatically delete frames older than this many days (0 = disabled)
+                    </p>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                <button class="button button-secondary" onclick="closeSettingsModal()">
+                    <span>Cancel</span>
+                </button>
+                <button class="button button-primary" onclick="saveAdvancedSettings()">
+                    <span>💾 Save Advanced Settings</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const API_BASE = '';
 
@@ -802,10 +971,53 @@
             document.getElementById('frameModal').style.display = 'none';
         }
 
+        function openAdvancedSettings() {
+            document.getElementById('settingsModal').style.display = 'block';
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').style.display = 'none';
+        }
+
+        async function saveAdvancedSettings() {
+            const advancedSettings = {
+                auto_timelapse_on_window_end: document.getElementById('autoTimelapseOnWindowEnd').checked,
+                auto_delete_frames_after_timelapse: document.getElementById('autoDeleteFrames').checked,
+                min_frames_for_timelapse: parseInt(document.getElementById('minFramesForTimelapse').value),
+                keep_frames_days: parseInt(document.getElementById('keepFramesDays').value)
+            };
+
+            try {
+                // Get current config first
+                const currentResponse = await fetch(`${API_BASE}/api/config`);
+                const currentConfig = await currentResponse.json();
+
+                // Merge with advanced settings
+                const updatedConfig = { ...currentConfig, ...advancedSettings };
+
+                const response = await fetch(`${API_BASE}/api/config`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedConfig)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    showNotification('Advanced settings saved successfully', 'success');
+                    closeSettingsModal();
+                } else {
+                    showNotification('Failed to save advanced settings', 'error');
+                }
+            } catch (error) {
+                showNotification('Error saving advanced settings', 'error');
+            }
+        }
+
         // Close modal with Escape key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeModal();
+                closeSettingsModal();
             }
         });
 
@@ -822,6 +1034,12 @@
                 document.getElementById('frameInterval').value = config.frame_interval || 300;
                 document.getElementById('fps').value = config.fps || 30;
                 document.getElementById('enabled').checked = config.enabled || false;
+                
+                // Load advanced settings
+                document.getElementById('autoTimelapseOnWindowEnd').checked = config.auto_timelapse_on_window_end || false;
+                document.getElementById('autoDeleteFrames').checked = config.auto_delete_frames_after_timelapse || false;
+                document.getElementById('minFramesForTimelapse').value = config.min_frames_for_timelapse || 10;
+                document.getElementById('keepFramesDays').value = config.keep_frames_days || 7;
                 
                 // Show/hide time window controls
                 toggleTimeWindowControls();
