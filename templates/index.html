@@ -218,7 +218,8 @@
 
         input[type="text"],
         input[type="number"],
-        input[type="time"] {
+        input[type="time"],
+        select {
             width: 100%;
             padding: 0.75rem 1rem;
             background: var(--bg-tertiary);
@@ -230,10 +231,16 @@
             transition: all 0.3s ease;
         }
 
-        input:focus {
+        input:focus,
+        select:focus {
             outline: none;
             border-color: var(--accent-1);
             box-shadow: 0 0 0 3px rgba(0, 255, 159, 0.1);
+        }
+
+        select option {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
         }
 
         .button {
@@ -931,6 +938,38 @@
                 </div>
             </div>
 
+            <div class="settings-section">
+                <div class="settings-section-title">Video Quality</div>
+                
+                <div class="form-group">
+                    <label for="outputResolution">Output Resolution</label>
+                    <select id="outputResolution" style="width: 100%; padding: 0.75rem 1rem; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 6px; color: var(--text-primary); font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;">
+                        <option value="3840x2160">4K Ultra HD (3840×2160)</option>
+                        <option value="2560x1440">2K QHD (2560×1440)</option>
+                        <option value="1920x1080" selected>Full HD (1920×1080)</option>
+                        <option value="1280x720">HD (1280×720)</option>
+                        <option value="854x480">SD (854×480)</option>
+                        <option value="custom">Custom Resolution</option>
+                    </select>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                        Resolution for captured frames and timelapse videos
+                    </p>
+                </div>
+
+                <div class="form-group" id="customResolutionGroup" style="display: none;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div>
+                            <label for="customWidth">Width (px)</label>
+                            <input type="number" id="customWidth" min="320" max="7680" value="1920">
+                        </div>
+                        <div>
+                            <label for="customHeight">Height (px)</label>
+                            <input type="number" id="customHeight" min="240" max="4320" value="1080">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div style="display: flex; gap: 1rem; justify-content: flex-end;">
                 <button class="button button-secondary" onclick="closeSettingsModal()">
                     <span>Cancel</span>
@@ -956,6 +995,16 @@
             
             // Add click handler for frame preview to open modal
             document.getElementById('framePreviewContainer').addEventListener('click', openFrameModal);
+            
+            // Add resolution dropdown change handler
+            document.getElementById('outputResolution').addEventListener('change', function() {
+                const customGroup = document.getElementById('customResolutionGroup');
+                if (this.value === 'custom') {
+                    customGroup.style.display = 'block';
+                } else {
+                    customGroup.style.display = 'none';
+                }
+            });
         });
 
         function toggleTimeWindowControls() {
@@ -1001,11 +1050,25 @@
         }
 
         async function saveAdvancedSettings() {
+            // Get resolution
+            let outputResolution;
+            const resolutionSelect = document.getElementById('outputResolution').value;
+            
+            if (resolutionSelect === 'custom') {
+                const width = parseInt(document.getElementById('customWidth').value);
+                const height = parseInt(document.getElementById('customHeight').value);
+                outputResolution = [width, height];
+            } else {
+                const [width, height] = resolutionSelect.split('x').map(Number);
+                outputResolution = [width, height];
+            }
+            
             const advancedSettings = {
                 auto_timelapse_on_window_end: document.getElementById('autoTimelapseOnWindowEnd').checked,
                 auto_delete_frames_after_timelapse: document.getElementById('autoDeleteFrames').checked,
                 min_frames_for_timelapse: parseInt(document.getElementById('minFramesForTimelapse').value),
-                keep_frames_days: parseInt(document.getElementById('keepFramesDays').value)
+                keep_frames_days: parseInt(document.getElementById('keepFramesDays').value),
+                output_resolution: outputResolution
             };
 
             try {
@@ -1062,6 +1125,23 @@
                 document.getElementById('autoDeleteFrames').checked = config.auto_delete_frames_after_timelapse || false;
                 document.getElementById('minFramesForTimelapse').value = config.min_frames_for_timelapse || 10;
                 document.getElementById('keepFramesDays').value = config.keep_frames_days || 7;
+                
+                // Load resolution settings
+                const resolution = config.output_resolution || [1920, 1080];
+                const resolutionString = `${resolution[0]}x${resolution[1]}`;
+                const resolutionSelect = document.getElementById('outputResolution');
+                
+                // Check if it's a preset resolution
+                const presetExists = Array.from(resolutionSelect.options).some(opt => opt.value === resolutionString);
+                if (presetExists) {
+                    resolutionSelect.value = resolutionString;
+                } else {
+                    // Custom resolution
+                    resolutionSelect.value = 'custom';
+                    document.getElementById('customWidth').value = resolution[0];
+                    document.getElementById('customHeight').value = resolution[1];
+                    document.getElementById('customResolutionGroup').style.display = 'block';
+                }
                 
                 // Show/hide time window controls
                 toggleTimeWindowControls();
