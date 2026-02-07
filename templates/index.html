@@ -711,6 +711,10 @@
             color: var(--text-secondary);
         }
 
+        .hidden {
+            display: none !important;
+        }
+
         @keyframes zoomIn {
             from {
                 transform: scale(0.8);
@@ -740,9 +744,12 @@
                     <input type="text" id="rtspUrl" placeholder="rtsp://username:password@ip:port/stream">
                 </div>
 
-                <div class="form-group">
+                <div class="form-group" id="dailyTimelapseTimeGroup">
                     <label for="captureTime">Daily Timelapse Time</label>
                     <input type="time" id="captureTime">
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                        Time to create daily timelapse video (disabled when using auto-timelapse at window end)
+                    </p>
                 </div>
 
                 <div class="form-group">
@@ -895,7 +902,7 @@
                     <input type="checkbox" id="autoTimelapseOnWindowEnd">
                     <label class="checkbox-label" for="autoTimelapseOnWindowEnd">
                         <div class="checkbox-label-title">Auto-create timelapse at window end</div>
-                        <div class="checkbox-label-desc">Automatically generate a timelapse video when the capture window closes each day</div>
+                        <div class="checkbox-label-desc">Automatically generate a timelapse video when the capture window closes each day. This will replace the "Daily Timelapse Time" setting.</div>
                     </label>
                 </div>
 
@@ -955,6 +962,20 @@
             const enabled = document.getElementById('captureScheduleEnabled').checked;
             const controls = document.getElementById('timeWindowControls');
             controls.style.display = enabled ? 'block' : 'none';
+            toggleDailyTimelapseTime();
+        }
+
+        function toggleDailyTimelapseTime() {
+            const windowEnabled = document.getElementById('captureScheduleEnabled').checked;
+            const autoTimelapseEnabled = document.getElementById('autoTimelapseOnWindowEnd').checked;
+            const dailyTimeGroup = document.getElementById('dailyTimelapseTimeGroup');
+            
+            // Hide daily timelapse time if using capture window with auto-timelapse
+            if (windowEnabled && autoTimelapseEnabled) {
+                dailyTimeGroup.classList.add('hidden');
+            } else {
+                dailyTimeGroup.classList.remove('hidden');
+            }
         }
 
         function openFrameModal() {
@@ -1004,6 +1025,7 @@
                 const result = await response.json();
                 if (result.success) {
                     showNotification('Advanced settings saved successfully', 'success');
+                    toggleDailyTimelapseTime(); // Update visibility
                     closeSettingsModal();
                 } else {
                     showNotification('Failed to save advanced settings', 'error');
@@ -1043,6 +1065,7 @@
                 
                 // Show/hide time window controls
                 toggleTimeWindowControls();
+                toggleDailyTimelapseTime();
                 
                 updateStatusBadge(config.enabled);
             } catch (error) {

@@ -273,23 +273,28 @@ def setup_schedule():
     schedule.clear()
     
     if current_config['enabled']:
-        # Schedule daily timelapse creation
-        schedule.every().day.at(current_config['capture_time']).do(
-            lambda: create_timelapse()
-        )
+        # Only schedule daily timelapse if NOT using auto-timelapse at window end
+        auto_timelapse_enabled = current_config.get('auto_timelapse_on_window_end', False)
+        window_enabled = current_config.get('capture_schedule_enabled', False)
+        
+        if not (auto_timelapse_enabled and window_enabled):
+            # Schedule daily timelapse creation at specified time
+            schedule.every().day.at(current_config['capture_time']).do(
+                lambda: create_timelapse()
+            )
+            logger.info(f"Scheduled daily timelapse at {current_config['capture_time']}")
         
         # Schedule frame capture at intervals
         interval = current_config['frame_interval']
         schedule.every(interval).seconds.do(scheduled_capture)
         
         # Schedule auto timelapse at window end if enabled
-        if current_config.get('auto_timelapse_on_window_end', False) and \
-           current_config.get('capture_schedule_enabled', False):
+        if auto_timelapse_enabled and window_enabled:
             stop_time = current_config.get('capture_stop_time', '20:00')
             schedule.every().day.at(stop_time).do(auto_timelapse_at_window_end)
+            logger.info(f"Scheduled auto-timelapse at window end: {stop_time}")
         
-        logger.info(f"Scheduled: Timelapse at {current_config['capture_time']}, "
-                   f"frames every {interval} seconds")
+        logger.info(f"Scheduled frame capture every {interval} seconds")
 
 
 def auto_timelapse_at_window_end():
